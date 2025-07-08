@@ -71,7 +71,11 @@ def authenticate_user(username, password):
     users[username]['last_login'] = datetime.now().isoformat()
     save_users(users)
     
-    return True, users[username]
+    # Add username to the returned user data
+    user_data = users[username].copy()
+    user_data['username'] = username
+    
+    return True, user_data
 
 def reset_password(username, new_password):
     """Reset user password"""
@@ -197,12 +201,11 @@ def main_app():
     
     # Sidebar with user info
     with st.sidebar:
-        st.write(f"**Logged in as:** {st.session_state.current_user['user_id']}")
-        st.write(f"**User ID:** {st.session_state.current_user['user_id']}")
+        st.write(f"**Logged in as:** {st.session_state.current_user['username']}")
         
-        if st.session_state.current_user.get('last_login'):
-            last_login = datetime.fromisoformat(st.session_state.current_user['last_login'])
-            st.write(f"**Last Login:** {last_login.strftime('%Y-%m-%d %H:%M:%S')}")
+        if st.session_state.current_user.get('created_at'):
+            created_at = datetime.fromisoformat(st.session_state.current_user['created_at'])
+            st.write(f"**Member since:** {created_at.strftime('%Y-%m-%d')}")
         
         st.markdown("---")
         if st.button("Logout"):
@@ -216,9 +219,9 @@ def main_app():
     # Example content
     st.subheader("User Information")
     user_info = {
+        "Username": st.session_state.current_user['username'],
         "User ID": st.session_state.current_user['user_id'],
-        "Created At": st.session_state.current_user['created_at'],
-        "Last Login": st.session_state.current_user.get('last_login', 'N/A')
+        "Member Since": datetime.fromisoformat(st.session_state.current_user['created_at']).strftime('%Y-%m-%d %H:%M:%S')
     }
     
     for key, value in user_info.items():
