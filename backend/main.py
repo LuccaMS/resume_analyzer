@@ -8,6 +8,12 @@ from typing import List
 import tempfile
 #import shutil
 import aiofiles
+from paddleocr import PaddleOCR
+
+ocr = PaddleOCR(
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=False)
 
 app = FastAPI()
 USER_FILE = "users.json"
@@ -90,6 +96,7 @@ def change_password(data: PasswordChange):
 async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(get_current_user)):
     allowed_types = ["application/pdf", "image/png", "image/jpeg"]
     saved_paths = []
+    json_results = []
 
     tmp_dir = "tmp"
     os.makedirs(tmp_dir, exist_ok=True)
@@ -108,4 +115,12 @@ async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(
 
         saved_paths.append(tmp_path)
 
-    return {"temporary_files": saved_paths}
+    for file in saved_paths:
+        result = ocr.predict(input=file)
+
+        for res in result:
+            res.save_to_json(tmp_dir)
+        
+        os.remove(file) #limpando o arquivo da memória após processar com OCR
+
+    return {"json_files": json_results}
