@@ -1,36 +1,20 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  ocr-app:
-    build: .
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend/users.json:/app/users.json
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
       - "8501:8501"
-    volumes:
-      - ./app:/app/app
-      - ./data/uploads:/app/uploads
-      - ./data/results:/app/results
-      - ./data/users.json:/app/users.json
-    environment:
-      - STREAMLIT_SERVER_PORT=8501
-      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
-      - PYTHONPATH=/app
-    restart: unless-stopped
-    container_name: ocr-document-processor
-    
-    # Optional: Add resource limits
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-          cpus: '2.0'
-        reservations:
-          memory: 2G
-          cpus: '1.0'
-          devices:
-              - driver: nvidia
-                count: all
-                capabilities: [gpu]
-
-volumes:
-  app_data:
-    driver: local
+    depends_on:
+      - backend
