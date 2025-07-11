@@ -1,9 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File
 from pydantic import BaseModel
 import uuid
 import json
 import os
 import bcrypt
+from typing import List
+import tempfile
+#import shutil
+
+import aiofiles
 
 app = FastAPI()
 USER_FILE = "users.json"
@@ -75,3 +80,26 @@ def change_password(data: PasswordChange):
     save_users(users)
     return {"msg": "Password changed successfully"}
 
+@app.post("/upload")
+async def upload_files(files: List[UploadFile] = File(...)):
+    allowed_types = ["application/pdf", "image/png", "image/jpeg"]
+    saved_paths = []
+
+    tmp_dir = "tmp"
+    os.makedirs(tmp_dir, exist_ok=True)
+
+    for file in files:
+        if file.content_type not in allowed_types:
+            raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}")
+
+        suffix = "." + file.filename.split(".")[-1]
+        tmp_filename = next(tempfile._get_candidate_names()) + suffix
+        tmp_path = os.path.join(tmp_dir, tmp_filename)
+
+        async with aiofiles.open(tmp_path, "wb") as out_file:
+            while content := await file.read(1024):  # Read in chunks
+                await out_file.write(content)
+
+        saved_paths.append(tmp_path)
+
+    return {"temporary_files": saved_paths}

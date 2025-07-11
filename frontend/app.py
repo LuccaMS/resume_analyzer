@@ -48,3 +48,4 @@ elif option == "Change Password":
                 st.success("Password changed!")
             else:
                 st.error(res.json()["detail"])
+
