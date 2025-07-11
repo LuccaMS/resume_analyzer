@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 from pydantic import BaseModel
 import uuid
 import json
@@ -7,7 +7,6 @@ import bcrypt
 from typing import List
 import tempfile
 #import shutil
-
 import aiofiles
 
 app = FastAPI()
@@ -31,6 +30,13 @@ def hash_password(password):
 
 def check_password(password, hashed):
     return bcrypt.checkpw(password.encode(), hashed.encode())
+
+def get_current_user(x_token: str = Header(...)):
+    users = load_users()
+    for username, data in users.items():
+        if data["uuid"] == x_token:
+            return username
+    raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
 
 class UserRegister(BaseModel):
     username: str
@@ -81,7 +87,7 @@ def change_password(data: PasswordChange):
     return {"msg": "Password changed successfully"}
 
 @app.post("/upload")
-async def upload_files(files: List[UploadFile] = File(...)):
+async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(get_current_user)):
     allowed_types = ["application/pdf", "image/png", "image/jpeg"]
     saved_paths = []
 
