@@ -1,18 +1,6 @@
 {
-  "luccams": {
-    "password": "$2b$12$DlR2VMKBlfUhVdVaoGfiSu7NlHmMN13fV33itwlQC4ds208P4QLq6",
-    "uuid": "08e40abd-6abd-43e2-8dfe-f410baf68de0"
-  },
-  "segunda_conta_lucca": {
-    "password": "$2b$12$TjgQqXhIj8FmsUJtlHUd/uvDhup/tkugP5qDJzrfQjL5pfSNr36bC",
-    "uuid": "4398d86d-94cc-47df-b729-f86c65189812"
-  },
-  "lucca2": {
-    "password": "$2b$12$yX8fOHqgNybF/sJGOQFZDOTAQe39VA3SuVF4K659qNSsRW0ArxZOq",
-    "uuid": "b2c42d43-1869-429b-93d5-361e0a12f612"
-  },
-  "lucca3": {
-    "password": "$2b$12$m9zVPkV6tfvP0wcnPvhV8e7QePU4/riOflI0INmgS00/0bEq7mPm6",
-    "uuid": "753bca1a-3b0e-4583-af61-613945256605"
+  "test_user": {
+    "password": "$2b$12$D3zXNdvP5Ge06Yop91dU7eKdZOzmr3KjvH31a7a/SBOYM9vAMeaL2",
+    "uuid": "eeb5a838-d060-4387-adc0-0153bcda39a6"
   }
 }
