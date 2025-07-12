@@ -6,11 +6,11 @@
     "linkedin": "linkedin.com/in/luccams",
     "github": "github.com/LuccaMS",
     "address": null,
-    "professional_summary": "Data Scientist and Computer Engineer from UFSC, with experience in developing conversational agents and AI-based solutions. Have solid expertise in RESTful APIs, data processing, ETL, and NLP using Python, SQL, and tools like FastAPI, Streamlit, LangChain, LangGraph, as well as various AWS services.",
+    "professional_summary": "Data Scientist and Computer Engineer from UFSC, with experience in developing conversational agents and AI-based solutions. Have solid expertise in RESTful APIs, data processing, ETL, and NLP using Python, SQL and tools like FastAPI, Streamlit, LangChain, LangGraph, as well as various AWS services.",
     "work_experience": [
-        "Data Scientist, A3Data (Remote) 07/2024\u2014Now: Led the improvement of a Text-to-SQL agent-based LLM system, successfully achieving an accuracy of 95%, resulting in a 30% increase. Designed and maintained scalable AWS infrastructure supporting LLM operations through Terraform-based infrastructure as code practices. Participated in the development of a conversational agent capable of interpreting user inputs to generate DSL queries in external APIs, building dynamic and personalized responses for users. Developed a graph-based conversational agent (LangGraph and LangChain) integrated with a product database using RAG, guiding users through the purchasing process and efficiently optimizing the sales funnel. Deployed models on AWS EC2 and ECS using Docker, ensuring scalability and reliability; developed guardrails using LLM-as-a-Judge for secure AI interactions. Applied advanced prompt engineering techniques, such as few-shot learning, negative prompting, and zero-shot learning, to optimize model performance. Conducted ETL processes to structure data for building an RAG system.",
-        "Internship, BTG Pactual Bank (Remote) 11/2023\u201406/2024: Successfully manipulated and processed data in spreadsheets, enabling automated distribution to thousands of clients while ensuring precision and scalability. Developed RESTful APIs using FastAPI and MySQL, achieving efficient integration between systems and databases. Created AWS Lambda functions for large-scale email stream processing, optimizing cloud-based infrastructure. Integrated APIs with front-end interfaces using React and Python, enhancing user experience and application functionality. Modeled and implemented new relational SQL database tables, ensuring efficient data structuring and consistency.",
-        "Machine Learning Intern, Universidade Federal de Santa Catarina 01/2022-10/2023: Successfully analyzed and cleaned data using libraries such as Pandas, Seaborn, and Matplotlib, ensuring high-quality data and effective visualization. Implemented machine learning models using frameworks like PyTorch, TensorFlow, scikit-learn, and NumPy, optimizing the accuracy and performance of solutions. Developed intelligent chatbots using Python and advanced Natural Language Processing (NLP) techniques, enabling personalized and interactive user experiences. Created RESTful APIs for chatbot integration using FastAPI, achieving efficient communication between systems and interfaces. Designed interactive dashboards using tools like Power BI, Tableau, and Python, empowering data-driven decision-making processes."
+        "Data Scientist, A3Data, Remote, 07/2024\u2014Now: Led the improvement of a Text-to-SQL agent-based LLM system, successfully achieving an accuracy of 95%, resulting in a 30% increase. Designed and maintained scalable AWS infrastructure supporting LLM operations through Terraform-based infrastructure as code practices. Participated in the development of a conversational agent capable of interpreting user inputs to generate DSL queries in external APIs, building dynamic and personalized responses for users. Developed a graph-based conversational agent (LangGraph and LangChain) integrated with a product database using RAG, guiding users through the purchasing process and efficiently optimizing the sales funnel. Deployed models on AWS EC2 and ECS using Docker, ensuring scalability and reliability; developed guardrails using LLM-as-a-Judge for secure AI interactions. Applied advanced prompt engineering techniques, such as few-shot learning, negative prompting, and zero-shot learning, to optimize model performance. Conducted ETL processes to structure data for building an RAG system.",
+        "Internship, BTG Pactual Bank, Remote, 11/2023\u201406/2024: Successfully manipulated and processed data in spreadsheets, enabling automated distribution to thousands of clients while ensuring precision and scalability. Developed RESTful APIs using FastAPI and MySQL, achieving efficient integration between systems and databases. Created AWS Lambda functions for large-scale email stream processing, optimizing cloud-based infrastructure. Integrated APIs with front-end interfaces using React and Python, enhancing user experience and application functionality. Modeled and implemented new relational SQL database tables, ensuring efficient data structuring and consistency.",
+        "Machine Learning Intern, Universidade Federal de Santa Catarina, 01/2022-10/2023: Successfully analyzed and cleaned data using libraries such as Pandas, Seaborn, and Matplotlib, ensuring high-quality data and effective visualization. Implemented machine learning models using frameworks like PyTorch, TensorFlow, scikit-learn and NumPy, optimizing the accuracy and performance of solutions. Developed intelligent chatbots using Python and advanced Natural Language Processing (NLP) techniques, enabling personalized and interactive user experiences. Created RESTful APIs for chatbot integration using FastAPI, achieving efficient communication between systems and interfaces. Designed interactive dashboards using tools like Power BI, Tableau and Python, empowering data-driven decision-making processes."
     ],
     "education": [
         "Computer Engineering, Universidade Federal de Santa Catarina, 2019-2024"
@@ -25,8 +25,13 @@
         "FastAPI",
         "Streamlit",
         "SQL",
-        "Docker",
         "Terraform",
+        "Docker",
+        "EC2",
+        "ECS",
+        "MySQL",
+        "AWS Lambda",
+        "React",
         "Pandas",
         "Seaborn",
         "Matplotlib",
@@ -34,8 +39,6 @@
         "TensorFlow",
         "scikit-learn",
         "NumPy",
-        "React",
-        "MySQL",
         "Power BI",
         "Tableau"
     ],

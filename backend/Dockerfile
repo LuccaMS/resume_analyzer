@@ -10,9 +10,13 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 FROM base AS ocr
 
 # Installing PaddleOCR and its heavy dependencies
-RUN pip install paddlepaddle-gpu==3.1.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/ \
- && pip install paddleocr \
- && pip install sentence-transformers
+#RUN pip install paddlepaddle-gpu==3.1.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu118/ \
+# && pip install paddleocr \
+# && pip install sentence-transformers
+
+RUN pip install paddlepaddle==3.1.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/ \
+    && pip install paddleocr \
+    && pip install sentence-transformers
 
 # --- Final image stage ---
 FROM python:3.10

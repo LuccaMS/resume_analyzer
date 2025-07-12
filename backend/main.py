@@ -13,11 +13,19 @@ from langchain_huggingface import HuggingFaceEmbeddings
 from tinydb import TinyDB
 from datetime import datetime, timezone
 from tool import RetrieveResumesTool
+import ast
 
 db = TinyDB('question_logs.json')
 
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+USE_CUDA = ast.literal_eval(os.getenv("USE_CUDA", "False"))
+
+print("GEMINI_API_KEY: ", GEMINI_API_KEY)
+print("USE_CUDA: ", USE_CUDA)
+
 model_name = "sentence-transformers/all-MiniLM-L6-v2"
-model_kwargs = {'device': 'cuda'} #TODO mudar para cpu se não usar gpu (cuda)
+model_kwargs = {'device': 'cuda' if USE_CUDA else 'cpu'}
+
 encode_kwargs = {'normalize_embeddings': False}
 embeddings = HuggingFaceEmbeddings(
     model_name=model_name,
@@ -26,8 +34,6 @@ embeddings = HuggingFaceEmbeddings(
 )
 
 from aux import load_json_with_jsonloader, chunk_documents
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 llm  = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GEMINI_API_KEY)
 
