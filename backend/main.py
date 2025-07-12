@@ -9,6 +9,12 @@ import tempfile
 #import shutil
 import aiofiles
 from paddleocr import PaddleOCR
+from prompt_schema import ResumeData, RESUME_EXTRACTION_PROMPT
+
+from google import genai
+from google.genai import types
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 ocr = PaddleOCR(
     use_doc_orientation_classify=False,
@@ -122,5 +128,7 @@ async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(
             res.save_to_json(tmp_dir)
         
         os.remove(file) #limpando o arquivo da memória após processar com OCR
+    
+    
 
     return {"json_files": json_results}

@@ -4,3 +4,4 @@ pydantic
 bcrypt
 aiofiles
 python-multipart
+google-genai

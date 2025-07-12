@@ -5,9 +5,12 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    environment:
+      - GEMINI_API_KEY=AIzaSyBNY0Ys8BqiMnPQ6ajbmtfgqqjcjMf0VLw
     volumes:
       - ./backend/users.json:/app/users.json
       - ./backend/tmp:/app/tmp 
+      - ./backend/:/app   
     ports:
       - "8000:8000"
     deploy:
