@@ -9,6 +9,7 @@ services:
       - ./backend/users.json:/app/users.json
       - ./backend/tmp:/app/tmp 
       - ./backend/resumes_processed:/app/resumes_processed 
+      - ./backend/chroma_langchain_db:/app/chroma_langchain_db
       - ./backend/:/app   
     ports:
       - "8000:8000"

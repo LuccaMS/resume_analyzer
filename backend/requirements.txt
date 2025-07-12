@@ -5,3 +5,12 @@ bcrypt
 aiofiles
 python-multipart
 google-genai
+langgraph 
+langchain-google-genai
+langchain-chroma>=0.1.2
+langchain_community  
+langchain-community
+jq
+langchain-text-splitters
+langchain-huggingface
+sentence-transformers
