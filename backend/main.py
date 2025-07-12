@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends, Query
 from pydantic import BaseModel, Field
+from fastapi.responses import FileResponse
 import uuid, re, json, os, bcrypt, tempfile, aiofiles
 from typing import List
 from paddleocr import PaddleOCR
@@ -63,20 +64,23 @@ def hash_password(password):
 def check_password(password, hashed):
     return bcrypt.checkpw(password.encode(), hashed.encode())
 
-def get_current_user(x_token: str = Header(...)):
-    users = load_users()
-    for username, data in users.items():
-        if data["uuid"] == x_token:
-            return username
-    raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
+#Função usada para verificar se existe algum usuário com o UUID.
+#Ele pode ser fornecido pelo header ou pelo query param, tornando simples a integração com o swagger ui ou outras ferramentas de teste de API.
+def verify_uuid(
+    x_token: str = Header(default=None),
+    x_token_query: str = Query(default=None, alias="user_uuid")  # optional alias
+):
+    token = x_token or x_token_query  # prioritize header, fallback to query param
 
-#Função usada para verificar se de fatos temos um usuário cadastrado com o UUID recebido.
-def verify_uuid(x_token: str = Header(...)):
+    if token is None:
+        raise HTTPException(status_code=401, detail="Missing authentication token")
+
     users = load_users()
     for username, data in users.items():
-        if data["uuid"] == x_token:
-            return x_token
-    raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
+        if data["uuid"] == token:
+            return token
+
+    raise HTTPException(status_code=401, detail="Invalid authentication token")
 
 class UserRegister(BaseModel):
     username: str
@@ -177,23 +181,25 @@ def change_password(data: PasswordChange):
     return {"msg": "Password changed successfully"}
 
 @app.post("/upload")
-async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(get_current_user)):
+async def upload_files(files: List[UploadFile] = File(...), user_uuid: str = Depends(verify_uuid)):
     """
-    Endpoint to upload and process multiple resume files.
-    This endpoint accepts a list of files (PDF, PNG, JPEG, JPG) from the user, performs OCR to extract text,
-    generates structured JSON output using a language model, and stores the results. The processed
-    documents are also chunked and added to a vector store for further retrieval or analysis.
-
-    The resumes and the OCR results are saved in temporary directories, and are deleted after processing to save space.
-    The only data saved about the resumes are a structured JSON file for each resume, which contains the extracted information.
-
+    Endpoint to upload and process resume files.
+    Accepts multiple files (PDF, PNG, JPEG, JPG), performs OCR extraction, processes the extracted text with a language model to generate structured JSON outputs, and stores the results. The processed documents are also chunked and added to a vector store for further use.
     Args:
-        files (List[UploadFile]): List of files to be uploaded and processed. Only PDF, PNG, and JPEG are allowed.
-        user (str): The current authenticated user uuid, injected via dependency. 
+        files (List[UploadFile]): List of files to be uploaded and processed.
+        user_uuid (str): User UUID, validated via dependency injection.
     Returns:
-        dict: A dictionary containing the list of paths to the created JSON files with structured resume data.
+        dict: A dictionary containing the list of paths to the created JSON files.
     Raises:
         HTTPException: If an unsupported file type is uploaded.
+    Workflow:
+        1. Validates file types and saves them temporarily.
+        2. Runs OCR on each file and saves the OCR output as JSON.
+        3. Extracts recognized texts from OCR outputs.
+        4. Uses a language model to generate structured resume data from OCR text.
+        5. Saves structured data as JSON files with sanitized filenames.
+        6. Loads each JSON, chunks the document, and adds chunks to a vector store.
+        7. Returns the list of created JSON file paths.
     """
     allowed_types = ["application/pdf", "image/png", "image/jpeg", "image/jpg"]
     saved_paths = []
@@ -285,7 +291,7 @@ async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(
 async def list_resumes(
     limit: int = Query(10, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    user: str = Depends(get_current_user)
+    user_uuid: str = Depends(verify_uuid)
 ):
     """
     Endpoint to list processed resumes with pagination.
@@ -293,19 +299,18 @@ async def list_resumes(
     Args:
         limit (int): Maximum number of resumes to return (default: 10, min: 1, max: 100).
         offset (int): Number of resumes to skip before starting to collect the result set (default: 0, min: 0).
-        user (str): The current authenticated user, injected by dependency.
+        user_uuid (str): User UUID, validated by dependency injection.
 
     Returns:
-        ResumePage: An object containing the total number of resumes and a list of paginated resume metadata.
+        ResumePage: An object containing the total number of resumes and a list of ResumeMetadata objects for the current page.
 
     Raises:
-        HTTPException: If there is an error accessing the resumes directory or reading files.
+        HTTPException: If the directory does not exist or files cannot be read.
 
     Notes:
         - Only files ending with ".json" in the "resumes_processed" directory are considered.
-        - Pagination is applied using the limit and offset parameters.
+        - Pagination is applied based on the provided limit and offset.
     """
-    
     # List files in the processed directory
     dir_path = "resumes_processed"
     all_files = sorted(f for f in os.listdir(dir_path) if f.endswith(".json"))
@@ -329,15 +334,18 @@ async def ask_question(
     user_uuid: str = Depends(verify_uuid)
 ):
     """
-    Endpoint to process a user's question about resumes and return a structured response.
-
-    Receives a question payload, verifies the user's UUID, and uses a retriever tool with a language model agent to search and extract relevant information from stored resumes. The agent's structured response is logged along with metadata (request ID, timestamp, user UUID, query, and response) into a TinyDB database for auditing or analytics purposes.
-
     Args:
         payload (QuestionRequest): The request body containing the user's query.
-        user_uuid (str): The user's unique identifier, validated via dependency injection.
+        user_uuid (str): The unique identifier for the user, validated via dependency injection.
+    Process:
+        - Extracts the query from the payload.
+        - Initializes a retriever from the vector store.
+        - Sets up a retrieval tool and a reactive agent with the specified prompt and response format.
+        - Invokes the agent with the user's query and obtains a structured response.
+        - Logs the request and response details into TinyDB for auditing or analytics.
+        - Constructs file download URLs for any files referenced in the response.
     Returns:
-        dict: A dictionary containing the structured response from the agent, with an answer and list of files used to answer the question.
+        dict: The structured response from the agent, including file download URLs.
     """
     query = payload.query
 
@@ -379,25 +387,22 @@ async def ask_question(
 
     return resp
 
-from fastapi.responses import FileResponse
-
 @app.get("/downloads/{filename}")
 async def download_file(
     filename: str,
     user_uuid: str = Depends(verify_uuid)
 ):
     """
-    Endpoint to securely download a resume JSON file.
-
-    Requires a valid `user_uuid` as a query parameter. If the file exists and the UUID is valid, returns the file as a download.
-
+    Endpoint to download a processed resume file.
     Args:
-        filename (str): The name of the resume file to download.
+        filename (str): The name of the file to download, provided as a path parameter.
         user_uuid (str): The user's UUID, validated via dependency injection.
-
+    Raises:
+        HTTPException: If the specified file does not exist, returns a 404 error.
     Returns:
-        FileResponse: The requested JSON file if it exists.
+        FileResponse: The requested file as a JSON response with appropriate headers.
     """
+
     file_path = os.path.join("resumes_processed", filename)
     
     if not os.path.exists(file_path):
