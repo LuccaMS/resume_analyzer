@@ -1,5 +1,5 @@
 # --- Base Python dependencies (light) ---
-FROM python:3.10 as base
+FROM python:3.10 AS base
 
 WORKDIR /app
 COPY requirements.txt .
@@ -7,7 +7,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 
 # --- OCR dependencies stage (heavy, rarely changes) ---
-FROM base as ocr
+FROM base AS ocr
 
 # Installing PaddleOCR and its heavy dependencies
 RUN pip install paddlepaddle-gpu==3.1.0 -i https://www.paddlepaddle.org.cn/packages/stable/cu129/ \

@@ -1,16 +1,9 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 from pydantic import BaseModel
-import uuid
-import json
-import os
-import bcrypt
+import uuid, re, json, os, bcrypt, tempfile, aiofiles
 from typing import List
-import tempfile
-#import shutil
-import aiofiles
 from paddleocr import PaddleOCR
 from prompt_schema import ResumeData, RESUME_EXTRACTION_PROMPT
-
 from google import genai
 from google.genai import types
 
@@ -102,10 +95,12 @@ def change_password(data: PasswordChange):
 async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(get_current_user)):
     allowed_types = ["application/pdf", "image/png", "image/jpeg"]
     saved_paths = []
-    json_results = []
 
     tmp_dir = "tmp"
+    output_dir = "resumes_processed" #folder where the resumes structured output will be saved.
+
     os.makedirs(tmp_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
 
     for file in files:
         if file.content_type not in allowed_types:
@@ -129,6 +124,44 @@ async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(
         
         os.remove(file) #limpando o arquivo da memória após processar com OCR
     
-    
+    ocrs_to_process = os.listdir(tmp_dir)
+    rec_texts = []  #este são os textos extraídos do OCR, o que vamos usar para obter o structured output
 
-    return {"json_files": json_results}
+    for path in ocrs_to_process:
+        file_to_open = f"{tmp_dir}/{path}"
+        with open(file_to_open) as file:
+            file_data = json.load(file)
+            rec_texts.append(file_data.get("rec_texts"))
+        
+        os.remove(file_to_open) #cleaning the OCR json
+    
+    for item in rec_texts:
+        prompt = RESUME_EXTRACTION_PROMPT.format(ocr_data=item)
+
+        client = genai.Client(api_key=GEMINI_API_KEY)
+
+        response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=prompt,
+        config={
+            "response_mime_type": "application/json",
+            "response_schema": ResumeData,
+        })
+
+        res = json.loads(response.text)
+
+        if res["full_name"] is not None:
+            # Convert to lowercase
+            file_name = res["full_name"].lower()
+            # Remove spaces
+            file_name = file_name.replace(" ", "")
+            # Remove special characters using regex (keeps only alphanumeric characters)
+            file_name = re.sub(r'[^a-z0-9]', '', file_name)
+        else:
+            file_name = str(uuid.uuid4())
+
+        with open(f"{output_dir}/{file_name}.json", "w") as json_file:
+            json.dump(res,json_file,indent=4)
+
+
+    return {"json_files": os.listdir(output_dir)}
