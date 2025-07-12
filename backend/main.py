@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, UploadFile, File, Header, Depends
 from pydantic import BaseModel
-import uuid, re, json, os, bcrypt, tempfile, aiofiles, uuid
+import uuid, re, json, os, bcrypt, tempfile, aiofiles
 from typing import List
 from paddleocr import PaddleOCR
 from prompt_schema import ResumeData, RESUME_EXTRACTION_PROMPT, RESUME_MATCHING_AGENT_PROMPT
@@ -10,11 +10,14 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_chroma import Chroma
 from langchain.tools.retriever import create_retriever_tool
 from langgraph.prebuilt import create_react_agent
-
 from langchain_huggingface import HuggingFaceEmbeddings
 
+from tinydb import TinyDB, Query
+from datetime import datetime, timezone
+db = TinyDB('question_logs.json')
+
 model_name = "sentence-transformers/all-MiniLM-L6-v2"
-model_kwargs = {'device': 'gpu'} #TODO mudar para cpu se não usar gpu
+model_kwargs = {'device': 'cuda'} #TODO mudar para cpu se não usar gpu (cuda)
 encode_kwargs = {'normalize_embeddings': False}
 embeddings = HuggingFaceEmbeddings(
     model_name=model_name,
@@ -66,6 +69,14 @@ def get_current_user(x_token: str = Header(...)):
     for username, data in users.items():
         if data["uuid"] == x_token:
             return username
+    raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
+
+#Função usada para verificar se de fatos temos um usuário cadastrado com o UUID recebido.
+def verify_uuid(x_token: str = Header(...)):
+    users = load_users()
+    for username, data in users.items():
+        if data["uuid"] == x_token:
+            return x_token
     raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
 
 class UserRegister(BaseModel):
@@ -214,7 +225,7 @@ async def upload_files(files: List[UploadFile] = File(...), user: str = Depends(
 @app.post("/question", response_model=QuestionResponse)
 async def ask_question(
     payload: QuestionRequest,
-    user: str = Depends(get_current_user)
+    user_uuid: str = Depends(verify_uuid)
 ):
     """
     Authenticated endpoint to process a user query about resume data.
@@ -223,15 +234,6 @@ async def ask_question(
     - details: list of the recommended resumes file names.
     """
     query = payload.query
-
-    # PROCESSING PLACEHOLDER:
-    # Here you'll integrate vector store search, LLM call, etc.
-    """answer = f"Placeholder answer to: {query}"
-    details = [
-        "Detail point 1 about the query",
-        "Detail point 2 providing additional info",
-        "Detail point 3 to support the answer"
-    ]"""
 
     retriever = vector_store.as_retriever()
 
@@ -252,6 +254,18 @@ async def ask_question(
         {"messages" : [{"role": "user", "content" : query}]}
     )
 
-    print(res)
+    resp_struct = res["structured_response"]
 
-    return res
+    # Prepare log record
+    record = {
+        "request_id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "user_uuid": user_uuid,
+        "query": query,
+        "response": resp_struct.model_dump()
+    }
+
+    # Insert into TinyDB
+    db.insert(record)
+
+    return resp_struct
