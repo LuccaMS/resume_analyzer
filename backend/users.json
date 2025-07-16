@@ -2,5 +2,13 @@
   "test_user": {
     "password": "$2b$12$D3zXNdvP5Ge06Yop91dU7eKdZOzmr3KjvH31a7a/SBOYM9vAMeaL2",
     "uuid": "eeb5a838-d060-4387-adc0-0153bcda39a6"
+  },
+  "luccams1": {
+    "password": "$2b$12$7ws8UuAokvTnQq3GyzHVjO6xCrpAjgSVUZhiZ1p7IIa8wPdncOjye",
+    "uuid": "8b1e1645-c8fc-4c7c-ab61-20d62202335e"
+  },
+  "luccamsteste": {
+    "password": "$2b$12$alqfrRNJ0j4sKfNkT2Fb5elBlmAqcS.mOXwogmveyF6Q9R37Zl4FS",
+    "uuid": "1317029b-d851-4acf-9d1d-ec7759220759"
   }
 }

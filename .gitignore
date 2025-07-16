@@ -1,1 +1,5 @@
 .env
+/backend/chroma_langchain_db
+backend/chroma_langchain_db/chroma.sqlite3
+/backend/resumes_processed
+backend/question_logs.json

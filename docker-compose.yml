@@ -4,8 +4,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - GEMINI_API_KEY=SUA_CHAVE_GEMINI
-      - USE_CUDA=False
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - USE_CUDA=${USE_CUDA}
     volumes:
       - ./backend/users.json:/app/users.json
       - ./backend/tmp:/app/tmp 
@@ -14,10 +14,22 @@ services:
       - ./backend/:/app   
     ports:
       - "8000:8000"
-    #deploy:
-    #  resources:
-    #    reservations:
-    #      devices:
-    #        - driver: nvidia
-    #          count: all
-    #          capabilities: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+              
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    container_name: streamlit_frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend

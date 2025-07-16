@@ -1,34 +1,34 @@
-# 📋 Aplicação de Gerenciamento de Currículos
+# 📋 Resume Management Application
 
-## 🎯 Visão Geral
+## 🎯 Overview
 
-Esta aplicação permite que usuários construam uma base abrangente de currículos e interajam com ela através de consultas em linguagem natural. Recrutadores podem encontrar os melhores candidatos para vagas específicas simplesmente descrevendo seus requisitos em texto livre.
+This application allows users to build a comprehensive resume database and interact with it through natural language queries. Recruiters can find the best candidates for specific positions simply by describing their requirements in free text.
 
-## Escolhas Técnicas
+## Technical Choices
 
-Consulte o arquivo `escolhas.md` para saber mais sobre as decisões técnicas sobre o projeto.
+Check the [`choices.md`](docs/choices.md) file to learn more about the technical decisions regarding the project.
 
-## 🚀 Primeiros Passos
+## 🚀 Getting Started
 
-### Pré-requisitos
+### Prerequisites
 
-- Docker instalado em seu sistema
-- Configuração do ambiente (consulte `ambiente.md`)
+- Docker installed on your system
+- Environment configuration (see [`environment.md`](docs/environment.md))
 
-### Instalação e Configuração
+### Installation and Setup
 
-1. **Configure seu ambiente** de acordo com as instruções em `ambiente.md`
+1. **Configure your environment** according to the instructions in [`environment.md`](docs/environment.md)
 
-2. **Construa e execute a aplicação**:
+2. **Build and run the application**:
    ```bash
    docker compose up --build
    ```
 
-   > ⚠️ **Nota**: Esta aplicação usa modelos de IA locais, então o processo de build do Docker pode levar um tempo considerável, pois as dependências podem exceder 1GB cada.
+   > ⚠️ **Note**: This application uses local AI models, so the Docker build process may take considerable time, as dependencies can exceed 1GB each.
 
-3. **Verifique se a aplicação está funcionando**:
+3. **Verify the application is running**:
    
-   Procure por esta saída em seu terminal:
+   Look for this output in your terminal:
    ```
    backend-1  | INFO:     Started server process [1]
    backend-1  | INFO:     Waiting for application startup.
@@ -36,14 +36,14 @@ Consulte o arquivo `escolhas.md` para saber mais sobre as decisões técnicas so
    backend-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
    ```
 
-4. **Acesse a documentação**:
-   - Documentação da API: `http://localhost:8000/docs`
+4. **Access the documentation**:
+   - API Documentation: `http://localhost:8000/docs`
 
-## 🔐 Autenticação
+## 🔐 Authentication
 
-### Registro de Usuário
+### User Registration
 
-Registre uma nova conta de usuário:
+Register a new user account:
 
 ```bash
 curl -X 'POST' \
@@ -51,12 +51,12 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "username": "SEU_USUÁRIO",
-  "password": "SUA_SENHA"
+  "username": "YOUR_USERNAME",
+  "password": "YOUR_PASSWORD"
 }'
 ```
 
-**Resposta**:
+**Response**:
 ```json
 {
   "msg": "User registered",
@@ -64,11 +64,11 @@ curl -X 'POST' \
 }
 ```
 
-> 🔑 **Importante**: Salve o UUID! Ele é necessário para todas as chamadas subsequentes da API.
+> 🔑 **Important**: Save the UUID! It's required for all subsequent API calls.
 
-### Login de Usuário
+### User Login
 
-Faça login para recuperar seu UUID:
+Login to retrieve your UUID:
 
 ```bash
 curl -X 'POST' \
@@ -76,12 +76,12 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "username": "SEU_USUÁRIO",
-  "password": "SUA_SENHA"
+  "username": "YOUR_USERNAME",
+  "password": "YOUR_PASSWORD"
 }'
 ```
 
-**Resposta**:
+**Response**:
 ```json
 {
   "msg": "Login successful",
@@ -89,36 +89,36 @@ curl -X 'POST' \
 }
 ```
 
-## 📤 Upload e Processamento
+## 📤 Upload and Processing
 
-### Upload de Arquivos de Currículo
+### Resume File Upload
 
-O endpoint `/upload` realiza OCR e extrai resumos estruturados dos currículos enviados:
+The `/upload` endpoint performs OCR and extracts structured summaries from uploaded resumes:
 
 ```bash
 curl -X 'POST' \
   'http://localhost:8000/upload?user_uuid=753bca1a-3b0e-4583-af61-613945256605' \
   -H 'accept: application/json' \
   -H 'Content-Type: multipart/form-data' \
-  -F 'files=@cv_exemplo.png;type=image/png'
+  -F 'files=@cv_example.png;type=image/png'
 ```
 
-**Resposta**:
+**Response**:
 ```json
 {
   "json_files": [
-    "resumes_processed/nomedousuario.json"
+    "resumes_processed/username.json"
   ]
 }
 ```
 
-> ⚠️ **Nota de Performance**: O processamento baseado em CPU pode ser lento. A aceleração por GPU (testada com GTX 1660Ti) proporciona performance excepcional de OCR.
+> ⚠️ **Performance Note**: CPU-based processing can be slow. GPU acceleration (tested with GTX 1660Ti) provides exceptional OCR performance.
 
-## 📊 Recuperação de Dados
+## 📊 Data Retrieval
 
-### Listar Currículos Processados
+### List Processed Resumes
 
-Recupere dados estruturados paginados dos currículos processados:
+Retrieve paginated structured data from processed resumes:
 
 ```bash
 curl -X 'GET' \
@@ -127,13 +127,13 @@ curl -X 'GET' \
   -H 'x-token: 753bca1a-3b0e-4583-af61-613945256605'
 ```
 
-O formato da resposta está detalhado em `rota_resumes_resposta.json`.
+The response format is detailed in `resumes_route_response.json`.
 
-## 🤖 Correspondência de Candidatos com IA
+## 🤖 AI Candidate Matching
 
-### Consultar a Base de Currículos
+### Query the Resume Database
 
-O endpoint `/question` usa um agente baseado em grafos com acesso a um banco de dados vetorial contendo vetores densos de todos os currículos registrados:
+The `/question` endpoint uses a graph-based agent with access to a vector database containing dense vectors of all registered resumes:
 
 ```bash
 curl -X 'POST' \
@@ -141,14 +141,14 @@ curl -X 'POST' \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
-  "query": "quero contratar um desenvolvedor React"
+  "query": "I want to hire a React developer"
 }'
 ```
 
-**Resposta**:
+**Response**:
 ```json
 {
-  "answer": "### Justificativa de Ranqueamento\n\n**1. Larissa Pereira**\n\nLarissa é a candidata mais adequada para a vaga de desenvolvedor React. Seu currículo a descreve como \"specializing in React and responsive design with a passion for clean UI\", o que demonstra um foco e expertise claros na tecnologia. Além disso, sua experiência como \"Frontend Developer - InovaData (2020-2021): Developed\" indica que ela possui experiência prática e relevante no desenvolvimento de interfaces. A menção de suas habilidades técnicas incluindo \"HTML\", \"CSS\", \"JavaScript\", e \"React\" reforça sua base sólida para a posição.\n\n**2. Lucca Machado**\n\nLucca é um forte segundo candidato, com experiência em \"APIs with front-end interfaces using React and Python\". Embora sua experiência seja mais abrangente, incluindo Python, o que pode ser um diferencial dependendo dos requisitos exatos do projeto, Larissa se destaca por sua especialização explícita em React e design responsivo, que são cruciais para um desenvolvedor React dedicado.\n\n### Arquivos de Currículos Utilizados:\n\n*   larissapereira.json\n*   luccamachado.json",
+  "answer": "### Ranking Justification\n\n**1. Larissa Pereira**\n\nLarissa is the most suitable candidate for the React developer position. Her resume describes her as \"specializing in React and responsive design with a passion for clean UI\", which demonstrates clear focus and expertise in the technology. Additionally, her experience as \"Frontend Developer - InovaData (2020-2021): Developed\" indicates she has practical and relevant experience in interface development. The mention of her technical skills including \"HTML\", \"CSS\", \"JavaScript\", and \"React\" reinforces her solid foundation for the position.\n\n**2. Lucca Machado**\n\nLucca is a strong second candidate, with experience in \"APIs with front-end interfaces using React and Python\". While his experience is more comprehensive, including Python, which could be an advantage depending on the exact project requirements, Larissa stands out for her explicit specialization in React and responsive design, which are crucial for a dedicated React developer.\n\n### Resume Files Used:\n\n*   larissapereira.json\n*   luccamachado.json",
   "files": [
     "larissapereira.json",
     "luccamachado.json"
@@ -160,40 +160,40 @@ curl -X 'POST' \
 }
 ```
 
-**Campos da Resposta**:
-- `answer`: Resposta gerada pela IA em formato markdown
-- `files`: Lista de arquivos de currículo usados para gerar a resposta
-- `file_urls`: Links diretos para download de cada currículo mencionado
+**Response Fields**:
+- `answer`: AI-generated response in markdown format
+- `files`: List of resume files used to generate the response
+- `file_urls`: Direct download links for each mentioned resume
 
-## 📥 Downloads de Arquivos
+## 📥 File Downloads
 
-### Download de Currículos Processados
+### Download Processed Resumes
 
-O endpoint `/downloads/{filename}` permite baixar qualquer currículo processado:
+The `/downloads/{filename}` endpoint allows downloading any processed resume:
 
-- Requer autenticação válida por UUID
-- O nome do arquivo pode ser obtido nos endpoints `/resumes` ou `/question`
-- Links diretos para download são fornecidos nas respostas das consultas
+- Requires valid UUID authentication
+- Filename can be obtained from `/resumes` or `/question` endpoints
+- Direct download links are provided in query responses
 
-## 🔄 Fluxo de Trabalho da API
+## 🔄 API Workflow
 
-1. **Registrar/Login** → Obter UUID
-2. **Upload de Currículos** → Processar com OCR + extração por IA
-3. **Consultar Base** → Obter candidatos ranqueados com justificativas
-4. **Download de Currículos** → Acessar informações detalhadas dos candidatos
+1. **Register/Login** → Get UUID
+2. **Upload Resumes** → Process with OCR + AI extraction
+3. **Query Database** → Get ranked candidates with justifications
+4. **Download Resumes** → Access detailed candidate information
 
-## 🛠️ Funcionalidades Técnicas
+## 🛠️ Technical Features
 
-- **Processamento OCR**: Extrai texto de currículos baseados em imagem
-- **Extração por IA**: Estrutura dados de currículos inteligentemente
-- **Base de Dados Vetorial**: Permite busca semântica em todos os currículos
-- **Agente Baseado em Grafos**: Fornece ranqueamento contextual de candidatos
-- **Autenticação Segura**: Validação de usuário baseada em UUID
-- **Logging Abrangente**: Rastreia todas as interações do usuário
+- **OCR Processing**: Extracts text from image-based resumes
+- **AI Extraction**: Intelligently structures resume data
+- **Vector Database**: Enables semantic search across all resumes
+- **Graph-Based Agent**: Provides contextual candidate ranking
+- **Secure Authentication**: UUID-based user validation
+- **Comprehensive Logging**: Tracks all user interactions
 
-## 📝 Recursos Adicionais
+## 📝 Additional Resources
 
-- **Documentação da API**: Disponível no endpoint `/docs`
-- **Detalhes das Rotas**: Consulte `rotas.md` para descrições completas das rotas
-- **Configuração do Ambiente**: Siga as instruções em `ambiente.md`
-- **Exemplos de Resposta**: Verifique `rota_resumes_resposta.json` para respostas de exemplo
+- **API Documentation**: Available at `/docs` endpoint
+- **Route Details**: Check `routes.md` for complete route descriptions
+- **Environment Setup**: Follow instructions in `environment.md`
+- **Response Examples**: Check `resumes_route_response.json` for example responses
