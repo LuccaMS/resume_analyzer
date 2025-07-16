@@ -4,6 +4,10 @@
 
 This application allows users to build a comprehensive resume database and interact with it through natural language queries. Recruiters can find the best candidates for specific positions simply by describing their requirements in free text.
 
+## Visual Interface
+
+If you're only interested in interacting with the graphical interface, follow the project execution steps and environment variable configuration. After that, access the following address: http://localhost:8501/. There, you will find the Streamlit interface to interact with the application.
+
 ## Technical Choices
 
 Check the [`choices.md`](docs/choices.md) file to learn more about the technical decisions regarding the project.
@@ -194,6 +198,5 @@ The `/downloads/{filename}` endpoint allows downloading any processed resume:
 ## 📝 Additional Resources
 
 - **API Documentation**: Available at `/docs` endpoint
-- **Route Details**: Check `routes.md` for complete route descriptions
 - **Environment Setup**: Follow instructions in `environment.md`
 - **Response Examples**: Check `resumes_route_response.json` for example responses

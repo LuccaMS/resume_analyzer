@@ -4,6 +4,10 @@
 
 Esta aplicação permite que usuários construam uma base abrangente de currículos e interajam com ela através de consultas em linguagem natural. Recrutadores podem encontrar os melhores candidatos para vagas específicas simplesmente descrevendo seus requisitos em texto livre.
 
+## Interface Visual 
+
+Caso você tenha interesse em interagir unicamente com a interface gráfica, siga os passos de execução do projeto e de configuração das variáveis de ambiente e, após isso, acesse o seguinte endereço: http://localhost:8501/. Nele, você terá acesso à interface Streamlit para interagir com a aplicação.
+
 ## Escolhas Técnicas
 
 Consulte o arquivo `escolhas.md` para saber mais sobre as decisões técnicas sobre o projeto.
@@ -194,6 +198,5 @@ O endpoint `/downloads/{filename}` permite baixar qualquer currículo processado
 ## 📝 Recursos Adicionais
 
 - **Documentação da API**: Disponível no endpoint `/docs`
-- **Detalhes das Rotas**: Consulte `rotas.md` para descrições completas das rotas
 - **Configuração do Ambiente**: Siga as instruções em `ambiente.md`
 - **Exemplos de Resposta**: Verifique `rota_resumes_resposta.json` para respostas de exemplo
